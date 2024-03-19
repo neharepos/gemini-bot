@@ -25,3 +25,6 @@ client.on("messageCreate", (message) => {
 client.login(process.env.TOKEN)
 // After telling discord to make a client above we have to login to that client with our discord bot secret access token 
 // This token helps discord to identify which bot or application we're trying to connect to
+
+
+// npm start
