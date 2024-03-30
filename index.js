@@ -1,7 +1,10 @@
 const { Client, GatewayIntentBits} = require("discord.js")
 const dotenv = require('dotenv');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 dotenv.config();
-const { SlashCommandBuilder } = require('discord.js');
+const genAI = new GoogleGenerativeAI(process.env.API_KEY);
+
+// const { SlashCommandBuilder } = require('discord.js');
 
 // Client is to tell discord to make me a client to interact with the discord servers
 
@@ -26,17 +29,50 @@ const client = new Client({
 
 client.on("messageCreate", (message) => {
     if(message.author.bot) return;
-    message.reply({
-      content: "Hi From Bot",
+         if (message.mentions.has(client.user)) {
+            let msg = message.content;
+            let arr = msg.split(" ");
+            // console.log(arr);
+            arr.shift();
+            // console.log(arr);
+            question = arrayToSentence(arr);
+            (async () => {
+                const result = await run(question);
+                // console.log(result);
+                message.reply({
+                    content: result,
+                })
+            })();
+        }
    });
-});
 
-client.on("interactionCreate",(interaction) => {
-    console.log(interaction);
-    interaction.reply("Pong!!");
-});
+   function arrayToSentence(array) {
+    // Create an empty string to store the sentence.
+    let sentence = "";
+  
+    // Iterate over the array and add each word to the sentence,
+    // with a space in between.
+    for (let i = 0; i < array.length; i++) {
+      sentence += array[i] + " ";
+    }
+  
+    // Return the sentence.
+    return sentence;
+  }
+  
 
-
+  async function run(question) {
+    // For text-only input, use the gemini-pro model
+    const model = genAI.getGenerativeModel({ model: "gemini-pro"});
+  
+    const prompt = question;
+  
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+    return text;
+  }
+  
 
 
     // async execute(interaction) {
